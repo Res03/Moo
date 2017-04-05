@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room Test</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <!--<link rel="stylesheet" href="chatwindow.css" type="text/css">-->
+    <style>
+        body {
+            margin-top: 30px;
+        }
+
+        #messageArea {
+            display: none;
+        }
+
+        /*Chat Box CSS*/
+        #pchat {
+            position: absolute;
+            width: 300px;
+            height: auto;
+            padding: 10px;
+            background: #088A68;
+            color: #EDEDED;
+            text-align: center;
+            font-family: Cambria;
+            font-size: 20px;
+            bottom: 0px;
+            right: 15px;
+            cursor: pointer;
+        }
+
+        #pchatBox {
+            display: none;
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            padding: 10px;
+            background: #EDEDED;
+            color: #FF7700;
+            text-align: center;
+            font-family: Cambria;
+            font-size: 20px;
+            bottom: 0px;
+            right: 15px;
+            cursor: pointer;
+        }
+
+        #close {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            padding: 6px 5px 10px 5px;
+            text-align: center;
+            background: rgba(0,0,0,0.8);
+            color: #FF7700;
+            font-family: Cambria;
+            right: 0px;
+            top: 0px;
+        }
+    </style>
+</head>
+<body>
+    <!--Login-->
+    <div class="container">
+        <div id="userFormArea" class="row">
+            <div class="col-md-12">
+                <form id="userForm">
+                    <div class="form-group">
+                        <label>Enter Username</label>
+                        <div id="usernameError"></div>
+                        <br />
+                        <input class="form-control" id="username" />
+                        <br />
+                        <input type="submit" class="btn btn-primary" value="Login" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!--General Chat Room-->
+        <div id="messageArea" class="row">
+            <div class="col-md-4">
+                <div class="well">
+                    <h3>Online Users</h3>
+                    <ul class="list-group" id="users"></ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chat" id="chat"></div>
+                <!--Chat Messages Appended Here-->
+                <form id="messageForm">
+                    <div class="form-group">
+                        <label>Enter Message</label>
+                        <textarea class="form-control" id="message"></textarea>
+                        <br />
+                        <input type="submit" class="btn btn-primary" value="Send Message" />
+                    </div>
+                </form>
+            </div>
+
+            <!--Private Message Column-->
+            <!--<div id="pmessageArea" class="row">
+                <div class="col-md-4">
+                    <div class="pchat" id="pchat"></div>
+                    Private Chat Messages Appended Here
+                    <form id="pmessageForm">
+                        <div class="form-group">
+                            <label>PM User's Socket ID:</label>
+                            <div id="socketid"></div>
+                            <label>Enter Private Message</label>
+                            <textarea class="form-control" id="pmessage"></textarea>
+                            <br />
+                            <input type="submit" class="btn btn-primary" value="Send Message" />
+                        </div>
+                    </form>
+                </div>
+            </div>-->
+
+            <div id="pchat" onClick="open_chatbox();"> Chat Now <div id="socketid"></div></div><!--Data Bind PM Recipient's Name here-->
+            <div id="pmessageArea">
+                <div id="pchatBox" class="col-md-6">
+                    <div class="pmchat" id="pmchat"></div>
+                    <!--Private Messages Appended here-->
+                 
+                    <div onclick="closeChat()" id="close">X</div><br><br>
+                    <form id="pmessageForm">
+                        <div class="form-group">
+                            <label>Enter Message</label>
+                            <textarea class="form-control" id="pmessage"></textarea>
+                            <input type="submit" class="btn btn-primary" value="Private Message" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    <!--Commented Out for Now-->
+    <!--Private Chat-->
+
+
+
+
+    <script>
+        $(function () {
+            var socket = io.connect();
+
+            var $messageForm = $('#messageForm');
+            var $message = $('#message');
+            var $chat = $('#chat');
+            var $messageArea = $('#messageArea');
+            var $userFormArea = $('#userFormArea');
+            var $userForm = $('#userForm');
+            var $users = $('#users');
+            var $username = $('#username');
+            var $usernameError = $('#usernameError');
+
+            //Private Message Variables
+            var $pmessageForm = $('#pmessageForm');
+            var $pmessage = $('#pmessage');
+            //var $container = $("#container");
+            var $pchatBox = $("#pchatBox");
+            var $pmchat = $('#pmchat');
+
+            var clientID;
+            //console.log("clientID: " + clientID);
+            $pmessageForm.submit(function (e) { //untested private message event
+                e.preventDefault();
+                console.log("clientID: " + clientID);
+                //var priv = dosomething();
+                var $pUSER = document.getElementById('socketid').innerHTML;
+                //console.log($pUSER);
+                socket.emit('send private message', { msg: $pmessage.val(), user: $pUSER });
+                $message.val('');
+            });
+
+            $messageForm.submit(function (e) {
+                e.preventDefault();
+                socket.emit('send message', $message.val());
+                $message.val('');
+            });
+
+            socket.on('new private message', function (data) { //untested private message return
+
+                //console.log(data);
+                $pmchat.append('<div><strong>' + data.user + '</strong> :' + data.msg + '</div>');
+            });
+
+            socket.on('new message', function (data) {
+                //console.log(data);
+                $chat.append('<div class="well"><strong>' + data.user + '</strong> :' + data.msg + '</div>');
+            });
+
+            $userForm.submit(function (e) { //New User being created
+                e.preventDefault();
+                socket.emit('new user', $username.val(), function (data) {
+                    if (data) {
+                        $userFormArea.hide();
+                        $messageArea.show();
+                        //console.log(socket.id);
+                        clientID = socket.id;
+                        //console.log("clientID: " + clientID);
+                    } else {
+                        $usernameError.html('That username is already taken.')
+                    }
+                });
+                $username.val('');
+            });
+
+            socket.on('get users', function (data) { //Online User List
+                console.log(data);
+                console.log("clientID: " + clientID);
+
+                var html = '';
+                //for (var d in data) {
+                //    html += '<li class="list-group-item">' + data[d] + '</li>';
+                //}
+                for (i = 0; i < data.length; i++) {
+                    html += '<li class="list-group-item"><input type="button" value="' + data[i] + '" onclick="dosomething(this.value)"> ' + data[i] + '</li>';
+                }
+
+                //console.log(data.user);
+                //console.log(data.id);
+                $users.html(html);
+            });
+
+        })
+        function dosomething(val) {
+            document.getElementById('socketid').innerHTML = (val);
+            console.log(val);
+        }
+
+        /* Chat Box Scripts */
+        function open_chatbox() {
+            $('#pchat').fadeOut(500);
+            $('#pchatBox').fadeIn(1000);
+        }
+        function closeChat() {
+            $('#pchatBox').fadeOut(500);
+            $('#pchat').fadeIn(1000);
+        }
+    </script>
+</body>
+</html>

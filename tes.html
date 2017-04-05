@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Title of the document</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
+
+    </script>
+    <script type="text/javascript">
+ function open_chatbox()
+ {
+ $('#chat').fadeOut(500);
+ $('#chatBox').fadeIn(1000);
+ }
+ function closeChat()
+ {
+ $('#chatBox').fadeOut(500);
+ $('#chat').fadeIn(1000);
+ }
+    </script>
+    <style>
+        #chat {
+            position: absolute;
+            width: 200px;
+            height: auto;
+            padding: 10px;
+            background: #088A68;
+            color: #EDEDED;
+            text-align: center;
+            font-family: Cambria;
+            font-size: 20px;
+            bottom: 0px;
+            right: 15px;
+            cursor: pointer;
+        }
+
+        #chatBox {
+            display: none;
+            position: absolute;
+            width: 200px;
+            height: 300px;
+            padding: 10px;
+            background: #EDEDED;
+            color: #FF7700;
+            text-align: center;
+            font-family: Cambria;
+            font-size: 20px;
+            bottom: 0px;
+            right: 15px;
+            cursor: pointer;
+        }
+
+        #close {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            padding: 6px 5px 10px 5px;
+            text-align: center;
+            background: rgba(0,0,0,0.8);
+            color: #FF7700;
+            font-family: Cambria;
+            right: 0px;
+            top: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat" onClick="open_chatbox();"> Chat Now </div>
+    <div id="chatBox">
+        <div onclick="closeChat()" id="close">X</div> <br><br>Add
+        your
+        chat form here....
+    </div>
+</body>
+
+</html>

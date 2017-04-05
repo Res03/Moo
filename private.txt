@@ -1,0 +1,43 @@
+http://stackoverflow.com/questions/40304570/send-private-message-using-node-js-and-socket-io
+
+
+
+I am implementing a small chat application using node.js and socket.io. Everything goes well till I try to send a private message. Here is the code for the server:
+
+...
+var to = users[name];
+socket.to(to).emit('private message', {userName: socket.username, message: msg} );
+...
+Code on the client side:
+
+...
+socket.on('private message', function(data){
+    alert(data.message);
+});
+...
+My problem is that on the client side the event is never fired, can anyone help me to fix this issue? Thank you.
+
+
+----------------------------------------------------------------------------------------------------
+http://stackoverflow.com/questions/7480111/how-to-create-a-javascript-variable-from-a-dom-element-using-jquery
+
+
+
+I know what you mean. with .html() you just get an string of what is inside the element selected and you can't bind events or stuff like that with with solid JavaScript when you select element with jQuery or jQuery then .html().
+
+When you define a variable to a jQuery selector it's not equal with what you define with solid JavaScript.
+
+$('body') == document.getElementsByTagName('body')[0]
+//false
+using .html() will not solve your problem:
+
+('body').html() == document.getElementsByTagName('body')[0]
+//false
+.html() gives you an string equals to what's inside the element:
+
+$('body').html() == document.getElementsByTagName('body')[0].innerHTML.toString()
+//true
+The fact is that jQuery selectors always return an array that contains every element matching the given query event if your query returns one element it will return an array with one element. So with selecting any element of every jQuery selector array you will get an actual DOM element.
+
+$('body')[0] == document.getElementsByTagName('body')[0]
+Try this in your browser developer tool to see the result! :D
